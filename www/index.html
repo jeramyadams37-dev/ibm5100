@@ -29,6 +29,13 @@ button.k:active{transform:translateY(2px);box-shadow:0 1px 0 #8a836d}
 button.k.big{background:#1d3f91;color:#fff;box-shadow:0 3px 0 #0e2257}
 button.k.red{background:#a82a2a;color:#fff;box-shadow:0 3px 0 #5b1313}
 #kb{position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;font-size:16px;border:0;padding:0}
+#xl{display:none;position:fixed;inset:0;z-index:20;overflow:auto;background:linear-gradient(#d6cfb8,#bcb49b);padding:max(10px,env(safe-area-inset-top)) 10px 18px;color:#222}
+#xl,#xl *{-webkit-user-select:text;user-select:text}
+#xl .xh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font:700 16px system-ui;letter-spacing:1px}
+#xi{width:100%;height:30vh;background:#021a06;color:#52ff80;border:0;border-radius:10px;padding:8px;font:12px 'Courier New',monospace;resize:vertical}
+#xl .xr{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0;font-size:13px}
+#xk{flex:1;min-width:120px;padding:9px;border-radius:6px;border:1px solid #888}
+#xo{white-space:pre-wrap;word-break:break-word;background:#021a06;color:#52ff80;padding:8px;border-radius:10px;min-height:90px;max-height:42vh;overflow:auto;font:12px 'Courier New',monospace;margin:6px 0}
 </style></head><body>
 <div id="m">
  <div class="hd"><span class="logo">IBM</span><span class="mod">5100</span><span class="sub">PORTABLE COMPUTER</span>
@@ -39,8 +46,17 @@ button.k.red{background:#a82a2a;color:#fff;box-shadow:0 3px 0 #5b1313}
  <div class="keys">
   <button class="k big" data-a="exec">EXEC</button><button class="k red" data-a="attn">ATTN</button>
   <button class="k" data-a="back">⌫</button><button class="k" data-a="clr">CLR</button>
-  <button class="k" data-a="up">↑ RECALL</button><button class="k" data-a="kbd">⌨</button></div>
+  <button class="k" data-a="up">↑ RECALL</button><button class="k" data-a="kbd">⌨</button><button class="k big" data-a="xl">XLATE</button></div>
  <div id="pal" class="pal"></div>
+</div>
+<div id="xl">
+ <div class="xh"><span>XLATE &mdash; OLD IBM CODE</span><button class="k red" id="xc">CLOSE</button></div>
+ <textarea id="xi" placeholder="Paste old IBM code here: APL, BASIC, assembler (S/370, 1130), FORTRAN. Or load a file or a photo of a listing." spellcheck="false" autocapitalize="none" autocorrect="off"></textarea>
+ <div class="xr"><input type="file" id="xf" accept="text/*,image/*,.apl,.bas,.f,.for,.asm,.txt"><b id="xd"></b></div>
+ <div class="xr"><button class="k" id="xe">EXPLAIN</button><button class="k" id="xj">&rarr; JS</button><button class="k" id="xp">&rarr; PYTHON</button><button class="k big" id="xrn">RUN IN 5100</button></div>
+ <div class="xr"><label><input type="checkbox" id="xa"> Use AI (Gemini)</label><input id="xk" type="password" placeholder="Gemini API key (stays on this phone)"><button class="k" id="xs">SAVE KEY</button></div>
+ <pre id="xo"></pre>
+ <div class="xr"><button class="k" id="xcp">COPY</button><button class="k" id="xx">CLEAR</button></div>
 </div>
 <input id="kb" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="send">
 <script>
@@ -92,7 +108,7 @@ function BasicEngine(io){
   const evalList=s=>{const x=P(tok(s));const a=[];if(x.t.length){do{a.push(x.or())}while(x.isO(',')&&++x.p)}return a};
   const KW=['PRINT','LET','INPUT','IF','GOTO','GOSUB','RETURN','FOR','NEXT','END','STOP','REM','DIM','RANDOMIZE','CLS'];
   function splitStmts(s){if(/^\s*REM/.test(s))return[s.trim()];const r=[];let q=false,cur='';
-    for(const c of s){if(c==='"')q=!q;if(c===':'&&!q){r.push(cur.trim());cur=''}else cur+=c}r.push(cur.trim());return r.filter(x=>x)}
+    for(const c of s){if(c==='"')q=!q;if(c===':'&&!q){r.push(cur.trim());cur=''}else cur+=c}r.push(cur.trim());return r.filter(x=>x).flatMap(x=>/^NEXT\s*\w+\$?\s*,/.test(x)?x.slice(4).split(',').map(v=>'NEXT '+v.trim()):[x])}
   async function exec(st,S){
     if(st[0]==='?')st='PRINT'+st.slice(1);
     const kw=KW.find(k=>st.startsWith(k));const rest=kw?st.slice(kw.length).trim():st;
@@ -384,4 +400,5 @@ async function main(){fit();pal();await boot();
     busy=false;$('lb').classList.remove('on');$('m').classList.remove('busy')}}
 main();
 </script>
+<script src="xlate.js"></script>
 </body></html>
